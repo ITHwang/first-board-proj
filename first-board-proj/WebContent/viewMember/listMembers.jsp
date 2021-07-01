@@ -59,7 +59,6 @@
 			<td width="7%"><b>가입일</b></td>
 			<td width="7%"><b>수정</b></td>
 			<td width="7%"><b>삭제</b></td>
-
 		</tr>
 		<c:choose>
 			<c:when test="${empty membersList }">
@@ -80,6 +79,6 @@
 			</c:when>
 		</c:choose>
 	</table>
-	<a href="${contextPath }/member/memberForm.do"><p class="cls2">회원 가입하기</p></a>
+	<a href="${contextPath }/board/listArticles.do"><p class="cls2">홈으로</p></a>
 </body>
 </html>

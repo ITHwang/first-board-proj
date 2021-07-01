@@ -111,6 +111,30 @@ public class MemeberController extends HttpServlet {
 			session.setAttribute("loginInfo", null);
 			request.setAttribute("msg", "logouted");
 			nextPage = "/board/listArticles.do";
+		} else if (action.equals("/mypage.do")) {
+			String id = request.getParameter("id");
+			MemberVO memInfo = memberDAO.findMember(id);
+			request.setAttribute("memInfo", memInfo);
+			nextPage = "/viewMember/mypage.jsp";
+		} else if (action.equals("/modMypage.do")) {
+			String id = request.getParameter("id");
+			String pwd = request.getParameter("pwd");
+			String name = request.getParameter("name");
+			String email = request.getParameter("email");
+
+			MemberVO memberVO = new MemberVO(id, pwd, name, email);
+			memberDAO.modMember(memberVO);
+			request.setAttribute("msg", "modified");
+			nextPage = "/member/mypage.do";
+		} else if (action.equals("/exitMember.do")) {
+			String id = request.getParameter("id");
+			memberDAO.delMember(id);
+
+			session = request.getSession();
+			session.setAttribute("loginInfo", null);
+
+			request.setAttribute("msg", "deleted");
+			nextPage = "/board/listArticles.do";
 		} else {
 			List<MemberVO> membersList = memberDAO.listMembers();
 			request.setAttribute("membersList", membersList);

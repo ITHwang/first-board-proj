@@ -27,6 +27,14 @@
 			}
 		</script>	
 	</c:when>
+	<c:when test='${msg=="deleted" }'>
+	
+		<script>
+			window.onload = function(){
+				alert("탈퇴 되었습니다.");
+			}
+		</script>	
+	</c:when>
 	<c:otherwise>
 		<div></div>
 	</c:otherwise>
@@ -58,13 +66,13 @@
 	</c:when>
 	<c:when test="${loginName ==  'admin'}">
 		<h2>관리자 모드</h2>
-		<h2><a href="#">회원 관리</a></h2>
+		<h2><a href="${contextPath }/member/listMembers.do">회원 관리</a></h2>
 		<h2><a href="${contextPath }/member/logout.do">로그아웃</a></h2>
 	</c:when>
 	<c:otherwise>
 		<h2>환영합니다 ${loginName } 님!!</h2>
 		<h2><a href="#">글쓰기</a></h2>
-		<h2><a href="#">마이페이지</a></h2>
+		<h2><a href="${contextPath }/member/mypage.do?id=${loginName}">마이페이지</a></h2>
 		<h2><a href="${contextPath }/member/logout.do">로그아웃</a></h2>
 	</c:otherwise>
 </c:choose>
@@ -93,8 +101,7 @@
 					<td width="10%">${article.id }</td>
 					<td align="left" width="35%">
 						<span style="padding-right:30px"></span>
-<%-- 						<a class="cls1" href="${contextPath }/board/viewArticle.do?articleNO=${article.articleNO}">${article.title }</a> --%>
-						<a class="cls1" href="#">${article.title }</a>
+						<a class="cls1" href="${contextPath }/board/viewArticle.do?articleNO=${article.articleNO}">${article.title }</a>
 					</td>
 					<td width="10%"><fmt:formatDate value="${article.writeDate }"/></td>
 				</tr>
@@ -111,33 +118,30 @@
 		<c:when test="${totArticles >= 100 }">
 			<c:forEach var="page" begin="1" end="10" step="1">
 				<c:if test="${section > 1 && page == 1 }">
-<%-- 					<a class="no-uline" href=" --%>
-<%-- 										${contextPath }/board/listArticles.do? --%>
-<%-- 										setion=${section-1}&pageNum=${(page-1)*10 + 1}"> --%>
-<!-- 						&nbsp; pre  -->
-<!-- 					</a> -->
-					<a class="no-uline" href="#"> &nbsp; pre </a>
+					<a class="no-uline" href="
+										${contextPath }/board/listArticles.do?
+										setion=${section-1}&pageNum=${(page-1)*10 + 1}">
+						&nbsp; pre 
+					</a>
 				</c:if>
 
-<%-- 				<a class="no-uline" href=" --%>
-<%-- 									${contextPath }/board/listArticles.do? --%>
-<%-- 									setion=${section}&pageNum=${page}"> --%>
-<%-- 					${(section-1)*10 + page } --%>
-<!-- 				</a> -->
-				<a class="no-uline" href="#"> ${(section-1)*10 + page } </a>
+				<a class="no-uline" href="
+									${contextPath }/board/listArticles.do?
+									setion=${section}&pageNum=${page}">
+					${(section-1)*10 + page }
+				</a>
 
 				<c:if test="${page==10 }">
-<%-- 					<a class="no-uline" href=" --%>
-<%-- 										${contextPath }/board/listArticles.do? --%>
-<%-- 										setion=${section+1}&pageNum=${section*10 + 1 }"> --%>
-<!-- 						&nbsp; next -->
-<!-- 					</a> -->
-					<a class="no-uline" href="#"> &nbsp; next </a>
+					<a class="no-uline" href="
+										${contextPath }/board/listArticles.do?
+										setion=${section+1}&pageNum=${section*10 + 1 }">
+						&nbsp; next
+					</a>
 				</c:if>
 			</c:forEach>
 		</c:when>
 
-		<c:when test="${totArticles == 10 }">
+		<c:when test="${totArticles == 100 }">
 			<c:forEach var="page" begin="1" end="10" step="1">
 				<a class="no-uline" href="#">${page }</a>
 			</c:forEach>
@@ -147,20 +151,18 @@
 			<c:forEach var="page" begin="1" end="${totArticles/10 + 1 }" step="1">
 				<c:choose>
 					<c:when test="${page==pageNum }">
-<%-- 						<a class="sel-page" href=" --%>
-<%-- 											${contextPath }/board/listArticles.do? --%>
-<%-- 											setion=${section}&pageNum=${page}"> --%>
-<%-- 							${page } --%>
-<!-- 						</a> -->
-						<a class="sel-page" href="#"> ${page } </a>
+						<a class="sel-page" href="
+											${contextPath }/board/listArticles.do?
+											setion=${section}&pageNum=${page}">
+							${page }
+						</a>
 					</c:when>
 					<c:otherwise>
-<%-- 						<a class="no-uline" href=" --%>
-<%-- 											${contextPath }/board/listArticles.do? --%>
-<%-- 											setion=${section}&pageNum=${page}"> --%>
-<%-- 							${page } --%>
-<!-- 						</a> -->
-						<a class="no-uline" href="#"> ${page } </a>
+						<a class="no-uline" href="
+											${contextPath }/board/listArticles.do?
+											setion=${section}&pageNum=${page}">
+							${page }
+						</a>
 					</c:otherwise>
 				</c:choose>
 				
@@ -169,10 +171,9 @@
 	</c:choose>
 </c:if>
 </div>
+<c:if test="${not empty loginName && loginName != 'admin' }">
+	<a class="cls1" href="${contextPath }/board/articleForm.do"><p class="cls2">글쓰기</p></a>
+</c:if>
 </footer>
-
-</div>
-<%-- <a class="cls1" href="${contextPath }/board/articleForm.do"><p class="cls2">글쓰기</p></a> --%>
-<a class="cls1" href="#"><p class="cls2">글쓰기</p></a>
 </body>
 </html>

@@ -34,12 +34,17 @@ public class BoardDAO {
 		int pageNum = (Integer) pagingMap.get("pageNum");
 		try {
 			conn = dataFactory.getConnection();
-			String query = "select * from board";
+			String query = "SELECT * FROM ( " + "select ROWNUM  as recNum," + "articleNO," + "title," + "id,"
+					+ "writeDate" + " from (select " + "articleNO," + "title," + "id," + "writeDate" + " from board"
+					+ "))" + " where recNum between(?-1)*100+(?-1)*10+1 and (?-1)*100+?*10 order by writeDate desc";
 			System.out.println(query);
 
 			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, section);
+			pstmt.setInt(2, pageNum);
+			pstmt.setInt(3, section);
+			pstmt.setInt(4, pageNum);
 			ResultSet rs = pstmt.executeQuery();
-
 			while (rs.next()) {
 				int articleNO = rs.getInt("articleNO");
 				String id = rs.getString("id");
@@ -68,17 +73,12 @@ public class BoardDAO {
 		List articlesList = new ArrayList();
 		try {
 			conn = dataFactory.getConnection();
-			String query = "SELECT LEVEL, articleNO, parentNO, title, content, id, writeDate" + " from board"
-					+ " START WITH parentNO=0" + " CONNECT BY PRIOR articleNO=parentNO"
-					+ " ORDER SIBLINGS BY articleNO DESC";
-
+			String query = "SELECT articleNO, title, content, id, writeDate" + " from board";
 			System.out.println(query);
 			pstmt = conn.prepareStatement(query);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				int level = rs.getInt("level");
 				int articleNO = rs.getInt("articleNO");
-				int parentNO = rs.getInt("parentNO");
 				String title = rs.getString("title");
 				String content = rs.getString("content");
 				String id = rs.getString("id");
@@ -86,9 +86,7 @@ public class BoardDAO {
 
 				ArticleVO article = new ArticleVO();
 
-//				article.setLevel(level);
 				article.setArticleNO(articleNO);
-//				article.setParentNO(parentNO);
 				article.setTitle(title);
 				article.setContent(content);
 				article.setId(id);
@@ -137,17 +135,16 @@ public class BoardDAO {
 			String id = article.getId();
 			String imageFileName = article.getImageFileName();
 
-			String query = "INSERT INTO board(articleNO, parentNO, title, content, imageFileName, id)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO board(articleNO, title, content, imageFileName, id)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			System.out.println(query);
 
 			pstmt = conn.prepareStatement(query);
 			pstmt.setInt(1, articleNO);
-//			pstmt.setInt(2, parentNO);
-			pstmt.setString(3, title);
-			pstmt.setString(4, content);
-			pstmt.setString(5, imageFileName);
-			pstmt.setString(6, id);
+			pstmt.setString(2, title);
+			pstmt.setString(3, content);
+			pstmt.setString(4, imageFileName);
+			pstmt.setString(5, id);
 			pstmt.executeUpdate();
 			pstmt.close();
 			conn.close();
@@ -163,7 +160,7 @@ public class BoardDAO {
 
 		try {
 			conn = dataFactory.getConnection();
-			String query = "SELECT articleNO, parentNO, title, content, NVL(imageFileName, 'null') as imageFileName, id, writeDate"
+			String query = "SELECT articleNO, title, content, NVL(imageFileName, 'null') as imageFileName, id, writeDate"
 					+ " from board" + " where articleNO=?";
 			System.out.println(query);
 
@@ -173,7 +170,6 @@ public class BoardDAO {
 			rs.next();
 
 			int _articleNO = rs.getInt("articleNO");
-			int parentNO = rs.getInt("parentNO");
 			String title = rs.getString("title");
 			String content = rs.getString("content");
 			String imageFileName = URLEncoder.encode(rs.getString("imageFileName"), "utf-8");
@@ -184,7 +180,6 @@ public class BoardDAO {
 			Date writeDate = rs.getDate("writeDate");
 
 			article.setArticleNO(_articleNO);
-//			article.setParentNO(parentNO);
 			article.setTitle(title);
 			article.setContent(content);
 			article.setImageFileName(imageFileName);
@@ -238,10 +233,7 @@ public class BoardDAO {
 		try {
 			conn = dataFactory.getConnection();
 			String query = "DELETE FROM board ";
-			query += " WHERE articleNO in(";
-			query += " SELECT articleNO FROM board";
-			query += " START WITH articleNO = ?";
-			query += " CONNECT BY PRIOR articleNO = parentNO)";
+			query += " WHERE articleNO=?";
 			System.out.println(query);
 
 			pstmt = conn.prepareStatement(query);

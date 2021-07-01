@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
  */
 @WebServlet("/board/*")
 public class BoardController extends HttpServlet {
-	private static String ARTICLE_IMAGE_REPO = "C:\\viewBoard\\article_image";
+	private static String ARTICLE_IMAGE_REPO = "C:\\board\\article_image";
 	BoardService viewBoardService;
 	ArticleVO articleVO;
 
@@ -85,7 +85,6 @@ public class BoardController extends HttpServlet {
 				if (loginInfo == null) {
 					articlesMap.put("loginName", null);
 				} else {
-					System.out.println(loginInfo.get("id") + "!!!!!");
 					articlesMap.put("loginName", loginInfo.get("id"));
 				}
 
@@ -125,8 +124,9 @@ public class BoardController extends HttpServlet {
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
 
-//				articleVO.setParentNO(0);`
-				articleVO.setId("hong");
+				session = request.getSession();
+				Map loginInfo = (Map) session.getAttribute("loginInfo");
+				articleVO.setId((String) loginInfo.get("id"));
 				articleVO.setTitle(title);
 				articleVO.setContent(content);
 				articleVO.setImageFileName(imageFileName);
@@ -141,22 +141,35 @@ public class BoardController extends HttpServlet {
 				}
 				PrintWriter pw = response.getWriter();
 				pw.print("<script>" + " alert('새글을 추가했습니다.');" + " location.href='" + request.getContextPath()
-						+ "/viewBoard/listArticles.do';" + "</script>");
+						+ "/board/listArticles.do';" + "</script>");
 				return;
 			} else if (action.equals("/viewArticle.do")) {
-				String articleNO = request.getParameter("articleNO");
-				articleVO = viewBoardService.viewArticle(Integer.parseInt(articleNO));
-				request.setAttribute("article", articleVO);
-				nextPage = "/viewBoard/viewArticle.jsp";
+				// 세션에 회원, 비회원, 관리자인지 확인하기
+				session = request.getSession();
+				Map loginInfo = (Map) session.getAttribute("loginInfo");
+
+				if (loginInfo == null) {
+					nextPage = "/member/loginForm.do";
+				} else {
+					request.setAttribute("loginName", loginInfo.get("id"));
+					String articleNO = request.getParameter("articleNO");
+					articleVO = viewBoardService.viewArticle(Integer.parseInt(articleNO));
+					request.setAttribute("article", articleVO);
+					nextPage = "/viewBoard/viewArticle.jsp";
+				}
+
 			} else if (action.equals("/modArticle.do")) {
 				Map<String, String> articleMap = upload(request, response);
 				int articleNO = Integer.parseInt(articleMap.get("articleNO"));
 				articleVO.setArticleNO(articleNO);
+
+				session = request.getSession();
+				Map loginInfo = (Map) session.getAttribute("loginInfo");
+				String id = articleMap.get(loginInfo.get("id"));
 				String title = articleMap.get("title");
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
-//				articleVO.setParentNO(0);
-				articleVO.setId("hong");
+				articleVO.setId(id);
 				articleVO.setTitle(title);
 				articleVO.setContent(content);
 				articleVO.setImageFileName(imageFileName);
@@ -174,7 +187,7 @@ public class BoardController extends HttpServlet {
 				}
 				PrintWriter pw = response.getWriter();
 				pw.print("<script>" + " alert('글을 수정했습니다.');" + " location.href='" + request.getContextPath()
-						+ "/viewBoard/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
+						+ "/board/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
 				return;
 			} else if (action.equals("/removeArticle.do")) {
 				int articleNO = Integer.parseInt(request.getParameter("articleNO"));
@@ -188,7 +201,7 @@ public class BoardController extends HttpServlet {
 				}
 				PrintWriter pw = response.getWriter();
 				pw.print("<script>" + "  alert('글을 삭제했습니다.');" + " location.href='" + request.getContextPath()
-						+ "/viewBoard/listArticles.do';" + "</script>");
+						+ "/board/listArticles.do';" + "</script>");
 				return;
 			} else if (action.equals("/replyForm.do")) {
 				int parentNO = Integer.parseInt(request.getParameter("parentNO"));
@@ -204,7 +217,6 @@ public class BoardController extends HttpServlet {
 				String title = articleMap.get("title");
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
-//				articleVO.setParentNO(parentNO);
 				articleVO.setId("lee");
 				articleVO.setTitle(title);
 				articleVO.setContent(content);
@@ -219,7 +231,7 @@ public class BoardController extends HttpServlet {
 				}
 				PrintWriter pw = response.getWriter();
 				pw.print("<script>" + "  alert('답글을 추가했습니다.');" + " location.href='" + request.getContextPath()
-						+ "/viewBoard/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
+						+ "/board/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
 				return;
 
 			} else {
