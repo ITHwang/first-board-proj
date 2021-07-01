@@ -68,7 +68,7 @@ public class BoardDAO {
 		List articlesList = new ArrayList();
 		try {
 			conn = dataFactory.getConnection();
-			String query = "SELECT LEVEL, articleNO, parentNO, title, content, id, writeDate" + " from t_board"
+			String query = "SELECT LEVEL, articleNO, parentNO, title, content, id, writeDate" + " from board"
 					+ " START WITH parentNO=0" + " CONNECT BY PRIOR articleNO=parentNO"
 					+ " ORDER SIBLINGS BY articleNO DESC";
 
@@ -109,7 +109,7 @@ public class BoardDAO {
 	private int getNewArticleNO() {
 		try {
 			conn = dataFactory.getConnection();
-			String query = "SELECT max(articleNO) from t_board ";
+			String query = "SELECT max(articleNO) from board ";
 			System.out.println(query);
 
 			pstmt = conn.prepareStatement(query);
@@ -137,7 +137,7 @@ public class BoardDAO {
 			String id = article.getId();
 			String imageFileName = article.getImageFileName();
 
-			String query = "INSERT INTO t_board(articleNO, parentNO, title, content, imageFileName, id)"
+			String query = "INSERT INTO board(articleNO, parentNO, title, content, imageFileName, id)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			System.out.println(query);
 
@@ -164,7 +164,7 @@ public class BoardDAO {
 		try {
 			conn = dataFactory.getConnection();
 			String query = "SELECT articleNO, parentNO, title, content, NVL(imageFileName, 'null') as imageFileName, id, writeDate"
-					+ " from t_board" + " where articleNO=?";
+					+ " from board" + " where articleNO=?";
 			System.out.println(query);
 
 			pstmt = conn.prepareStatement(query);
@@ -210,7 +210,7 @@ public class BoardDAO {
 		try {
 			conn = dataFactory.getConnection();
 
-			String query = "update t_board set title=?, content=?";
+			String query = "update board set title=?, content=?";
 			if (imageFileName != null && imageFileName.length() != 0) {
 				query += ", imageFileName=?";
 			}
@@ -237,9 +237,9 @@ public class BoardDAO {
 	public void deleteArticle(int articleNO) {
 		try {
 			conn = dataFactory.getConnection();
-			String query = "DELETE FROM t_board ";
+			String query = "DELETE FROM board ";
 			query += " WHERE articleNO in(";
-			query += " SELECT articleNO FROM t_board";
+			query += " SELECT articleNO FROM board";
 			query += " START WITH articleNO = ?";
 			query += " CONNECT BY PRIOR articleNO = parentNO)";
 			System.out.println(query);
@@ -258,7 +258,7 @@ public class BoardDAO {
 		List<Integer> articleNOList = new ArrayList<Integer>();
 		try {
 			conn = dataFactory.getConnection();
-			String query = "SELECT articleNO FROM t_board";
+			String query = "SELECT articleNO FROM board";
 			query += " START WITH articleNO = ?";
 			query += " CONNECT BY PRIOR articleNO = parentNO";
 			System.out.println(query);

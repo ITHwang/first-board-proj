@@ -79,6 +79,16 @@ public class BoardController extends HttpServlet {
 				articlesMap.put("section", section);
 				articlesMap.put("pageNum", pageNum);
 
+				// 세션에 회원, 비회원, 관리자인지 확인하기
+				session = request.getSession();
+				Map loginInfo = (Map) session.getAttribute("loginInfo");
+				if (loginInfo == null) {
+					articlesMap.put("loginName", null);
+				} else {
+					System.out.println(loginInfo.get("id") + "!!!!!");
+					articlesMap.put("loginName", loginInfo.get("id"));
+				}
+
 				request.setAttribute("articlesMap", articlesMap);
 				nextPage = "/viewBoard/listArticles.jsp";
 
@@ -94,6 +104,15 @@ public class BoardController extends HttpServlet {
 				Map articlesMap = viewBoardService.listArticles(pagingMap);
 				articlesMap.put("section", section);
 				articlesMap.put("pageNum", pageNum);
+
+				// 세션에 회원, 비회원, 관리자인지 확인하기
+				session = request.getSession();
+				Map loginInfo = (Map) session.getAttribute("loginInfo");
+				if (loginInfo == null) {
+					articlesMap.put("loginName", null);
+				} else {
+					articlesMap.put("loginName", loginInfo.get("id"));
+				}
 
 				request.setAttribute("articlesMap", articlesMap);
 				nextPage = "/viewBoard/listArticles.jsp";
